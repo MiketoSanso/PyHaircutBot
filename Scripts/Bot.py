@@ -137,7 +137,7 @@ class Bot:
                                     f"Количество стрижек у нас: {self.base_commands_db.return_count_haircuts(userID)}\n"
                                     f"Количество бесплатных стрижек: {self.base_commands_db.return_count_free_haircuts(userID)}\n\n"
                                     f"Реферальные баллы за приглашённых друзей: {self.base_commands_db.return_referal_coins(userID)}\n"
-                                    f"Оставшееся количество стрижек для получения 1 бесплатной: {self.base_commands_db.return_count_haircuts(userID)}\n")
+                                    f"Оставшееся количество стрижек для получения 1 бесплатной: {self.base_commands_db.return_count_haircuts(userID) % }\n")
 
     async def referral(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"РЕФЕРАЛЬНАЯ СИСТЕМА\n\n"
