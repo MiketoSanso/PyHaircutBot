@@ -1,3 +1,3 @@
 from Scripts.DiContainer import DiContainer
 
-container = DiContainer
+container = DiContainer()

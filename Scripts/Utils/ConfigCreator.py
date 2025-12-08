@@ -1,28 +1,19 @@
 import logging
 import os
-from pathlib import Path
 import json
 from dataclasses import dataclass, asdict
 from typing import Optional, Any
-
+from Scripts.Utils.ProjectPathFinder import ProjectPathFinder
 
 class ConfigCreator:
-    def __init__(self):
-        self.configs_dir = self.get_project_path() / "Configs"
+    def __init__(self, path_finder: ProjectPathFinder):
+        self.path_finder = path_finder
+        self.configs_dir = self.path_finder.get_project_path() / "Configs"
         self.configs_dir.mkdir(exist_ok=True)
         self._config: Optional[Config] = None
 
         self.setup_logging()
         self.load_or_create_config()
-
-    def get_project_path(self) -> Path:
-        current = Path(__file__).resolve()
-
-        for parent in [current] + list(current.parents):
-            if (parent / ".git").exists():
-                return parent
-
-        return current
 
     def setup_logging(self):
         self.root_logger = logging.getLogger()
@@ -62,7 +53,10 @@ class ConfigCreator:
 
     def create_default_config(self):
         self._config = Config(
-            count_haircuts_to_free = 3
+            count_haircuts_to_free = 3,
+            count_referral_haircuts_to_bonus = 3,
+            coins_for_one_referral = 100,
+            coins_for_free_haircut = 300
         )
 
         self.save_config()
@@ -85,7 +79,16 @@ class ConfigCreator:
 @dataclass
 class Config:
     count_haircuts_to_free: int = 0
+    count_referral_haircuts_to_bonus: int = 0
+    coins_for_one_referral: int = 0
+    coins_for_free_haircut: int = 0
 
     def __post_init__(self):
         if self.count_haircuts_to_free < 0 or self.count_haircuts_to_free > 50:
             raise ValueError("count must be between 0 and 50")
+        if self.count_referral_haircuts_to_bonus < 0 or self.count_referral_haircuts_to_bonus > 50:
+            raise ValueError("count must be between 0 and 50")
+        if self.coins_for_one_referral < 0 or self.coins_for_one_referral > 1000:
+            raise ValueError("count must be between 0 and 1000")
+        if self.coins_for_free_haircut < 0 or self.coins_for_free_haircut > 10000:
+            raise ValueError("count must be between 0 and 10000")

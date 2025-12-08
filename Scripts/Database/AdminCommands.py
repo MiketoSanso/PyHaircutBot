@@ -1,6 +1,5 @@
 from Scripts.Database.HaircutDatabase import HaircutDatabase
 
-
 class AdminCommands:
     def __init__(self, db: HaircutDatabase):
         self.db = db

@@ -1,51 +1,57 @@
-from pathlib import Path
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, \
-    CallbackQueryHandler
 import os
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, BotCommand
+from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, CallbackQueryHandler
 from dotenv import load_dotenv
-
 from Scripts.Database.BaseCommands import BaseCommands
 from Scripts.Database.AdminCommands import AdminCommands
+from Scripts.Utils.ConfigCreator import ConfigCreator
+from Scripts.Utils.ProjectPathFinder import ProjectPathFinder
 
 class Bot:
 
-    def __init__(self, base_commands_db: BaseCommands, admin_commands_db: AdminCommands):
+    def __init__(self, base_commands_db: BaseCommands,
+                 admin_commands_db: AdminCommands,
+                 config_creator: ConfigCreator,
+                 path_finder: ProjectPathFinder):
+        self.path_finder = path_finder
+        self.config_creator = config_creator
         self.base_commands_db = base_commands_db
         self.admin_commands_db = admin_commands_db
 
         self.REVIEW_TEXT, self.REVIEW_RATING = range(2)
 
-        env_path = self.get_project_path() / "tech.env"
-
-        print(f"1. Ищу .env по пути: {env_path}")
-        print(f"2. Файл существует: {env_path.exists()}")
-
+        env_path = self.path_finder.get_project_path() / "tech.env"
         load_dotenv(dotenv_path=env_path)
 
         self.BOT_TOKEN = os.getenv("BOT_KEY")
-
-    def get_project_path(self) -> Path:
-        current = Path(__file__).resolve()
-        current_dir = current.parent
-
-        for parent_dir in [current_dir] + list(current_dir.parents):
-            if (parent_dir  / "tech.env").exists():
-                return parent_dir
-
-        return current_dir
 
     def run(self):
         application = Application.builder().token(self.BOT_TOKEN).build()
         self.setup_handlers(application)
         self.setup_keyboards()
 
-        print("🤖 Бот запускается...")
+        async def set_commands(app):
+            commands = [
+                BotCommand("start", "Начать работу"),
+                BotCommand("price", "Прайс на услуги"),
+                BotCommand("account", "Мой аккаунт"),
+                BotCommand("referral", "Реферальная система"),
+                BotCommand("reviews", "Посмотреть отзывы"),
+                BotCommand("add_review", "Оставить отзыв"),
+                BotCommand("help", "Помощь и команды"),
+                BotCommand("spec_ref", "Добавить реферала")
+            ]
+            await app.bot.set_my_commands(commands)
+
+        application.post_init = set_commands
         application.run_polling()
 
     def setup_handlers(self, application):
         review_conversation = ConversationHandler(
-            entry_points=[CommandHandler("add_review", self.add_review)],
+            entry_points=[
+                CommandHandler("add_review", self.add_review),
+                MessageHandler(filters.Regex(r'^🏅'), self.add_review)
+            ],
             states={
                 self.REVIEW_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.review_text_received)],
                 self.REVIEW_RATING: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.review_rating_received)],
@@ -57,9 +63,17 @@ class Bot:
             ],
         )
 
+        application.add_handler(review_conversation)
         application.add_handler(CallbackQueryHandler(self.button_handler))
 
-        application.add_handler(review_conversation)
+        application.add_handler(MessageHandler(filters.Regex(r'^👾'), self.start))
+        application.add_handler(MessageHandler(filters.Regex(r'^💰'), self.price))
+        application.add_handler(MessageHandler(filters.Regex(r'^👤'), self.account))
+        application.add_handler(MessageHandler(filters.Regex(r'^⭐'), self.reviews))
+        application.add_handler(MessageHandler(filters.Regex(r'^❓'), self.help_command))
+        application.add_handler(MessageHandler(filters.Regex(r'^👥'), self.referral))
+        application.add_handler(MessageHandler(filters.Regex(r'^🤝'), self.specify_refferal))
+
         application.add_handler(CommandHandler("start", self.start))
         application.add_handler(CommandHandler("price", self.price))
         application.add_handler(CommandHandler("account", self.account))
@@ -92,7 +106,7 @@ class Bot:
 
     async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         keyboard = [
-                ["Начать работу с ботом"],
+                ["👾 Начать работу с ботом"],
                 ["💰 Прайс"],
                 ["👤 Аккаунт"],
                 ["⭐ Посмотреть отзывы"],
@@ -121,23 +135,25 @@ class Bot:
     async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user = update.effective_user
         user_id = user.id
-
         self.base_commands_db.add_user_to_db(user_id)
+
 
     async def price(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
        await update.message.reply_text("ПРАЙС\n\n"
-                                      f"{self.base_commands_db.return_price()}\n")
+                                      f"{self.base_commands_db.get_price()}\n")
 
 
     async def account(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user = update.effective_user
         userID = user.id
+        count = self.base_commands_db.get_count_haircuts(userID) % self.config_creator.get_config_value(
+            "count_haircuts_to_free") if self.base_commands_db.get_count_haircuts(userID) != 0 else 3
 
         await update.message.reply_text(f"АККАУНТ\n\n"
-                                    f"Количество стрижек у нас: {self.base_commands_db.return_count_haircuts(userID)}\n"
-                                    f"Количество бесплатных стрижек: {self.base_commands_db.return_count_free_haircuts(userID)}\n\n"
-                                    f"Реферальные баллы за приглашённых друзей: {self.base_commands_db.return_referal_coins(userID)}\n"
-                                    f"Оставшееся количество стрижек для получения 1 бесплатной: {self.base_commands_db.return_count_haircuts(userID) % }\n")
+                                    f"Количество стрижек у нас: {self.base_commands_db.get_count_haircuts(userID)}\n"
+                                    f"Количество бесплатных стрижек: {self.base_commands_db.get_count_free_haircuts(userID)}\n\n"
+                                    f"Реферальные баллы за приглашённых друзей: {self.base_commands_db.get_referral_coins(userID)}\n"
+                                    f"Оставшееся количество стрижек для получения 1 бесплатной: {count}\n")
 
     async def referral(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"РЕФЕРАЛЬНАЯ СИСТЕМА\n\n"
@@ -218,7 +234,7 @@ class Bot:
                 reply_markup=InlineKeyboardMarkup(self.keyboard_reviews))
 
     async def next_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if context.user_data['review_index'] + 1 > self.base_commands_db.return_count_reviews() - 1:
+        if context.user_data['review_index'] + 1 > self.base_commands_db.get_count_reviews() - 1:
             context.user_data['review_index'] = 0
         else:
             context.user_data['review_index'] += 1
@@ -227,7 +243,7 @@ class Bot:
 
     async def last_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if context.user_data['review_index'] - 1 < 0:
-            context.user_data['review_index'] = self.base_commands_db.return_count_reviews() - 1
+            context.user_data['review_index'] = self.base_commands_db.get_count_reviews() - 1
         else:
             context.user_data['review_index'] -= 1
 

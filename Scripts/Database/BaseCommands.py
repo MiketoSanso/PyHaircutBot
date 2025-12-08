@@ -1,12 +1,11 @@
 import sqlite3
-
 from Scripts.Database.HaircutDatabase import HaircutDatabase
 
 class BaseCommands:
     def __init__(self, db: HaircutDatabase):
         self.db = db
 
-    def return_price(self) -> str:
+    def get_price(self) -> str:
         try:
             self.db.cursor.execute("SELECT nameService, costService FROM price")
             all_services = self.db.cursor.fetchall()
@@ -19,7 +18,7 @@ class BaseCommands:
         except sqlite3.Error as e:
             return ""
 
-    def return_count_haircuts(self, id_user: int) -> int:
+    def get_count_haircuts(self, id_user: int) -> int:
         try:
             self.db.cursor.execute("SELECT countHaircuts FROM accounts WHERE idUser = ?", (id_user,))
             result = self.db.cursor.fetchone()
@@ -27,7 +26,7 @@ class BaseCommands:
         except sqlite3.Error as e:
             return 0
 
-    def return_count_free_haircuts(self, id_user: int) -> int:
+    def get_count_free_haircuts(self, id_user: int) -> int:
         try:
             self.db.cursor.execute("SELECT countFreeHaircuts FROM accounts WHERE idUser = ?", (id_user,))
             result = self.db.cursor.fetchone()
@@ -35,7 +34,7 @@ class BaseCommands:
         except sqlite3.Error as e:
             return 0
 
-    def return_referal_coins(self, id_user: int) -> int:
+    def get_referral_coins(self, id_user: int) -> int:
         try:
             self.db.cursor.execute("SELECT referralCoins FROM accounts WHERE idUser = ?", (id_user,))
             result = self.db.cursor.fetchone()
@@ -43,13 +42,21 @@ class BaseCommands:
         except sqlite3.Error as e:
             return 0
 
-    def return_count_reviews(self) -> int:
+    def get_count_reviews(self) -> int:
         try:
             self.db.cursor.execute("SELECT COUNT(*) FROM reviews")
             result = self.db.cursor.fetchone()
             return result[0] if result else 0
         except sqlite3.Error as e:
             return 0
+
+    def get_review_by_index(self, index: int) -> tuple[str, str, int]:
+        self.db.cursor.execute('SELECT username, textReview, estimation '
+                               'FROM reviews '
+                               'ORDER BY estimation DESC '
+                               'LIMIT 1 OFFSET ?', (index,))
+
+        return self.db.cursor.fetchone()
 
     def add_user_to_db(self,
                        id_user: str):
@@ -78,11 +85,3 @@ class BaseCommands:
 
         self.db.connect.commit()
         return status
-
-    def get_review_by_index(self, index: int) -> tuple[str, str, int]:
-        self.db.cursor.execute('SELECT username, textReview, estimation '
-                               'FROM reviews '
-                               'ORDER BY estimation DESC '
-                               'LIMIT 1 OFFSET ?', (index,))
-
-        return self.db.cursor.fetchone()
