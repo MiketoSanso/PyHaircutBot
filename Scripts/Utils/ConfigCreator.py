@@ -8,7 +8,7 @@ from Scripts.Utils.ProjectPathFinder import ProjectPathFinder
 class ConfigCreator:
     def __init__(self, path_finder: ProjectPathFinder):
         self.path_finder = path_finder
-        self.configs_dir = self.path_finder.get_project_path() / "Configs"
+        self.configs_dir = self.path_finder.find_path() / "Configs"
         self.configs_dir.mkdir(exist_ok=True)
         self._config: Optional[Config] = None
 

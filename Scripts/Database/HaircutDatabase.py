@@ -1,6 +1,7 @@
 import sqlite3
 from typing import Set
 
+
 class HaircutDatabase:
     def __init__(self):
         self.cache_users: Set[int] = set()
@@ -19,6 +20,7 @@ class HaircutDatabase:
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS accounts (
                 idUser INT,
+                username TEXT,
                 referralCoins INT,
                 countHaircuts INT,
                 countFreeHaircuts INT,
