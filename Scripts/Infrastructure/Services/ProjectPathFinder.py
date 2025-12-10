@@ -1,7 +1,8 @@
+from functools import cached_property
 from pathlib import Path
 
-class ProjectPathFinder():
-    def find_path(self) -> Path:
+class ProjectPathFinder:
+    def _find_path_project(self) -> Path:
         current = Path(__file__).resolve()
 
         for parent in [current] + list(current.parents):
@@ -9,3 +10,13 @@ class ProjectPathFinder():
                 return parent
 
         return current
+
+    @cached_property
+    def configs_path(self) -> Path:
+        direction = self._find_path_project()
+        return direction / "Configs"
+
+    @cached_property
+    def env_path(self) -> Path:
+        direction = self._find_path_project()
+        return direction / "tech.env"

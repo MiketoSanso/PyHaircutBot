@@ -8,7 +8,6 @@ class TechConfig:
     count_referral_haircuts_to_bonus: int = 0
     coins_for_one_referral: int = 0
     coins_for_free_haircut: int = 0
-    BOT_TOKEN = os.getenv("BOT_KEY")
 
     def __post_init__(self):
         if self.count_haircuts_to_free < 0 or self.count_haircuts_to_free > 50:

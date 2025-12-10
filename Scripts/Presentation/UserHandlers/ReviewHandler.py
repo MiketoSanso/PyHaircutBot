@@ -6,6 +6,7 @@ from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCom
 
 class ReviewHandlers:
     def __init__(self):
+        base_commands_db
         self.REVIEW_TEXT, self.REVIEW_RATING = range(2)
 
         self.setup_keyboards()

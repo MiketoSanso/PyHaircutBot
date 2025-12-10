@@ -1,33 +1,29 @@
-import os
-
 from telegram import Update, ReplyKeyboardMarkup, BotCommand
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
-from dotenv import load_dotenv
-from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCommands
-from Scripts.Presentation.AdminHandlers.AdminCommands import AdminCommands
+
+from Scripts.Infrastructure.Configs.BotConfig import BotConfig
 from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
-from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
+from Scripts.Presentation.UserHandlers.ReviewHandler import ReviewHandlers
+from Scripts.Presentation.UserHandlers.SmallHandlers import SmallHandlers
 
 
 class BotCommandsInstaller:
 
     def __init__(self,
-                 admin_commands_db: AdminCommands,
                  config_creator: ConfigCreator,
-                 path_finder: ProjectPathFinder):
-        self.path_finder = path_finder
+                 small_handlers: SmallHandlers,
+                 review_handlers: ReviewHandlers,
+                 config: BotConfig):
         self.config_creator = config_creator
-        self.admin_commands_db = admin_commands_db
+        self.small_handlers = small_handlers
+        self.review_handlers = review_handlers
+        self.config = config
+
 
         self.REFERRER_TEXT = 0
 
-        env_path = self.path_finder.find_path() / "tech.env"
-        load_dotenv(dotenv_path=env_path)
-
-        self.BOT_TOKEN = os.getenv("BOT_KEY")
-
     def run(self):
-        application = Application.builder().token(self.BOT_TOKEN).build()
+        application = Application.builder().token(self.config.bot_token).build()
         self.setup_handlers(application)
         self.setup_keyboards()
 

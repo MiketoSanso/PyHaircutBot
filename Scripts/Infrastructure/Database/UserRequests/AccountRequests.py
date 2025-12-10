@@ -1,5 +1,5 @@
 import sqlite3
-from Scripts.Infrastructure.Database.HaircutDatabase import HaircutDatabase
+from Scripts.Infrastructure.Database.Database import HaircutDatabase
 
 
 class AccountRequests:

@@ -1,5 +1,3 @@
-import os
-
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import CommandHandler, MessageHandler, filters
 from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCommands
@@ -8,12 +6,8 @@ from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
 
 class SmallHandlers:
 
-    def __init__(self, base_commands_db: BaseCommands,
-                 config_creator: ConfigCreator):
-        self.config_creator = config_creator
-        self.base_commands_db = base_commands_db
-
-        self.reply_keyboard = ReplyKeyboardMarkup()
+    def __init__(self):
+        self.reply_keyboard = None
         self.setup_keyboards()
 
     def setup_handlers(self, application):
@@ -86,6 +80,6 @@ class SmallHandlers:
                                         f"/account - Посмотреть свой баланс и статистику.\n"
                                         f"/referral - Информация о реферальной системе.\n"
                                         f"/reviews - Посмотреть отзывы\n"
-                                        f"/addreview - Оставить отзыв\n"
+                                        f"/add_review - Оставить отзыв\n"
                                         f"/help - Показать это сообщение\n"
                                         f"/specRef - Указать реферера (Человека, который привел вас сюда)")

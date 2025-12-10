@@ -2,7 +2,7 @@ from Scripts.Presentation.AdminHandlers.AdminCommands import AdminCommands
 from Scripts.Infrastructure.Database.UserRequests.AccountRequests import AccountRequests
 from Scripts.Infrastructure.Database.UserRequests.InfoRequests import InfoCommands
 from Scripts.Infrastructure.Database.UserRequests.ReviewRequests import ReviewCommands
-from Scripts.Infrastructure.Database.HaircutDatabase import HaircutDatabase
+from Scripts.Infrastructure.Database.Database import HaircutDatabase
 from Scripts.Presentation.BotCommandsInstaller import BotCommandsInstaller
 from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder

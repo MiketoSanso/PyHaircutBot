@@ -3,56 +3,31 @@ import os
 import json
 from dataclasses import asdict
 from typing import Optional, Any
+from Scripts.Domain.TechConfig import TechConfig
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 class ConfigCreator:
     def __init__(self, path_finder: ProjectPathFinder):
         self.path_finder = path_finder
-        self.configs_dir = self.path_finder.find_path() / "Configs"
+        self.configs_dir = self.path_finder.configs_path
         self.configs_dir.mkdir(exist_ok=True)
-        self._config: Optional[Config] = None
+        self._config: Optional[TechConfig] = None
 
-        self.setup_logging()
         self.load_or_create_config()
-
-    def setup_logging(self):
-        self.root_logger = logging.getLogger()
-        self.root_logger.setLevel(logging.INFO)
-
-
-        if self.root_logger.handlers:
-            return
-
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-
-        app_log_file = self.configs_dir / "app.log"
-        self.app_handler = logging.FileHandler(app_log_file, encoding='utf-8')
-        self.app_handler.setLevel(logging.INFO)
-        self.app_handler.setFormatter(formatter)
-        self.root_logger.addHandler(self.app_handler)
-
-        error_log_file = self.configs_dir / "errors.log"
-        self.error_handler = logging.FileHandler(error_log_file, encoding='utf-8')
-        self.error_handler.setLevel(logging.ERROR)
-        self.error_handler.setFormatter(formatter)
-        self.root_logger.addHandler(self.error_handler)
 
     def load_or_create_config(self):
         if os.path.exists(self.configs_dir / "config.json"):
             try:
                 with open(self.configs_dir / "config.json", 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    self._config = Config(**data)
+                    self._config = TechConfig(**data)
             except Exception as e:
                 self.create_default_config()
         else:
             self.create_default_config()
 
     def create_default_config(self):
-        self._config = Config(
+        self._config = TechConfig(
             count_haircuts_to_free = 3,
             count_referral_haircuts_to_bonus = 3,
             coins_for_one_referral = 100,

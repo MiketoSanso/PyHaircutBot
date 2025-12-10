@@ -1,4 +1,4 @@
-from Scripts.Infrastructure.Database.HaircutDatabase import HaircutDatabase
+from Scripts.Infrastructure.Database.Database import HaircutDatabase
 
 class AdminCommands:
     def __init__(self, db: HaircutDatabase):
