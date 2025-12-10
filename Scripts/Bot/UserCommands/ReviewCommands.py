@@ -1,25 +1,17 @@
-import os
-
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, BotCommand
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, \
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, \
     CallbackQueryHandler
-from dotenv import load_dotenv
-from Scripts.Database.UserRequests.AccountRequests import BaseCommands
-from Scripts.Database.AdminRequests.AdminCommands import AdminCommands
-from Scripts.Utils.ConfigCreator import ConfigCreator
-from Scripts.Utils.ProjectPathFinder import ProjectPathFinder
+from Scripts.Infrastructure.UserRequests.AccountRequests import BaseCommands
 
 
 class Bot:
-
     def __init__(self):
         self.REVIEW_TEXT, self.REVIEW_RATING = range(2)
 
-        self.setup_handlers()
         self.setup_keyboards()
 
-    def setup_handlers(self):
-        self.review_conversation = ConversationHandler(
+    def setup_handlers(self, application):
+        review_conversation = ConversationHandler(
             entry_points=[
                 CommandHandler("add_review", self.add_review),
                 MessageHandler(filters.Regex(r'^🏅'), self.add_review)
@@ -33,6 +25,13 @@ class Bot:
                 MessageHandler(filters.COMMAND, self.cancel)
             ],
         )
+
+        application.add_handler(review_conversation)
+        application.add_handler(CallbackQueryHandler(self.button_handler))
+
+        application.add_handler(MessageHandler(filters.Regex(r'^⭐'), self.reviews))
+
+        application.add_handler(CommandHandler("reviews", self.reviews))
 
     def setup_keyboards(self):
         next_review_button = InlineKeyboardButton(
@@ -89,11 +88,6 @@ class Bot:
             await update.message.reply_text("Пожалуйста, введите число от 1 до 5:")
             return self.REVIEW_RATING
 
-    async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        context.user_data.pop('review_text', None)
-        await update.message.reply_text("Команда отменена.")
-        return ConversationHandler.END
-
     async def reviews(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if context.user_data is None:
             context.user_data = {}
@@ -136,3 +130,8 @@ class Bot:
             context.user_data['review_index'] -= 1
 
         await self.send_review_text(update, context)
+
+    async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
+        context.user_data.pop('review_text', None)
+        await update.message.reply_text("Команда отменена.")
+        return ConversationHandler.END
