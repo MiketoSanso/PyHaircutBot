@@ -6,7 +6,7 @@ class HaircutDatabase:
     def __init__(self):
         self.cache_users: Set[int] = set()
 
-        self.connect = sqlite3.connect('../../Barbershop.db')
+        self.connect = sqlite3.connect('../../../Barbershop.db')
         self.cursor = self.connect.cursor()
 
         self.cursor.execute('''

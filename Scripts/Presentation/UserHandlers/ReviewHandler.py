@@ -1,10 +1,10 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, \
     CallbackQueryHandler
-from Scripts.Infrastructure.UserRequests.AccountRequests import BaseCommands
+from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCommands
 
 
-class Bot:
+class ReviewHandlers:
     def __init__(self):
         self.REVIEW_TEXT, self.REVIEW_RATING = range(2)
 

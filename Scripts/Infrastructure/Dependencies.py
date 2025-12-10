@@ -1,11 +1,11 @@
-from Scripts.Infrastructure.AdminRequests.AdminCommands import AdminCommands
-from Scripts.Infrastructure.UserRequests.AccountRequests import AccountRequests
-from Scripts.Infrastructure.UserRequests.InfoRequests import InfoCommands
-from Scripts.Infrastructure.UserRequests.ReviewRequests import ReviewCommands
-from Scripts.Infrastructure.HaircutDatabase import HaircutDatabase
-from Scripts.Bot.BotCommandsInstaller import BotCommandsInstaller
-from Scripts.Utils.ConfigCreator import ConfigCreator
-from Scripts.Utils.ProjectPathFinder import ProjectPathFinder
+from Scripts.Presentation.AdminHandlers.AdminCommands import AdminCommands
+from Scripts.Infrastructure.Database.UserRequests.AccountRequests import AccountRequests
+from Scripts.Infrastructure.Database.UserRequests.InfoRequests import InfoCommands
+from Scripts.Infrastructure.Database.UserRequests.ReviewRequests import ReviewCommands
+from Scripts.Infrastructure.Database.HaircutDatabase import HaircutDatabase
+from Scripts.Presentation.BotCommandsInstaller import BotCommandsInstaller
+from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
+from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 
 class DiContainer:

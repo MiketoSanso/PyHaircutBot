@@ -1,22 +1,51 @@
 import os
 
-from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import CommandHandler, MessageHandler, filters
-from Scripts.Infrastructure.UserRequests.AccountRequests import BaseCommands
-from Scripts.Utils.ConfigCreator import ConfigCreator
+from telegram import Update, ReplyKeyboardMarkup, BotCommand
+from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from dotenv import load_dotenv
+from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCommands
+from Scripts.Presentation.AdminHandlers.AdminCommands import AdminCommands
+from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
+from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 
-class SmallCommands:
+class BotCommandsInstaller:
 
-    def __init__(self, base_commands_db: BaseCommands,
-                 config_creator: ConfigCreator):
+    def __init__(self,
+                 admin_commands_db: AdminCommands,
+                 config_creator: ConfigCreator,
+                 path_finder: ProjectPathFinder):
+        self.path_finder = path_finder
         self.config_creator = config_creator
-        self.base_commands_db = base_commands_db
+        self.admin_commands_db = admin_commands_db
+
+        self.REFERRER_TEXT = 0
+
+        env_path = self.path_finder.find_path() / "tech.env"
+        load_dotenv(dotenv_path=env_path)
 
         self.BOT_TOKEN = os.getenv("BOT_KEY")
 
-        self.reply_keyboard = ReplyKeyboardMarkup()
+    def run(self):
+        application = Application.builder().token(self.BOT_TOKEN).build()
+        self.setup_handlers(application)
         self.setup_keyboards()
+
+        async def set_commands(app):
+            commands = [
+                BotCommand("start", "Начать работу"),
+                BotCommand("price", "Прайс на услуги"),
+                BotCommand("account", "Мой аккаунт"),
+                BotCommand("referral", "Реферальная система"),
+                BotCommand("reviews", "Посмотреть отзывы"),
+                BotCommand("add_review", "Оставить отзыв"),
+                BotCommand("help", "Помощь и команды"),
+                BotCommand("spec_ref", "Добавить реферала")
+            ]
+            await app.bot.set_my_commands(commands)
+
+        application.post_init = set_commands
+        application.run_polling()
 
     def setup_handlers(self, application):
         application.add_handler(MessageHandler(filters.Regex(r'^👾'), self.start))
@@ -31,6 +60,9 @@ class SmallCommands:
         application.add_handler(MessageHandler(filters.ALL, self.handle_message))
 
     def setup_keyboards(self):
+        pass
+
+    async def start(self, update: Update) -> None:
         keyboard = [
             ["👾 Начать работу с ботом"],
             ["💰 Прайс"],
@@ -42,13 +74,12 @@ class SmallCommands:
             ["🤝 Добавить реферала"]
         ]
 
-        self.reply_keyboard = ReplyKeyboardMarkup(
+        reply_markup = ReplyKeyboardMarkup(
             keyboard=keyboard,
             resize_keyboard=False,
             one_time_keyboard=False
         )
 
-    async def start(self, update: Update) -> None:
         await update.message.reply_text("\"Стриж и КО\"\n\n"
                                         "Привет! Рады видеть тебя здесь!\n"
                                         "Наша компания предоставляет услуги стрижки по очень выгодным ценам!\n"
@@ -56,7 +87,7 @@ class SmallCommands:
                                         "Только у нас ты можешь попросить парикмахера выехать к тебе домой,\n"
                                         "А также именно у нас ты можешь получить бесплатные стрижки за частое посещение!\n\n"
                                         "Ждём тебя, наш парикмахер уже готовится!)",
-                                        reply_markup=self.reply_keyboard
+                                        reply_markup=reply_markup
                                         )
 
     async def handle_message(self, update: Update) -> None:

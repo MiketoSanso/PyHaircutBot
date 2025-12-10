@@ -1,10 +1,10 @@
 from telegram import Update
 from telegram.ext import CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
-from Scripts.Infrastructure.UserRequests.AccountRequests import BaseCommands
-from Scripts.Utils.ConfigCreator import ConfigCreator
+from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCommands
+from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
 
 
-class RefSystemCommands:
+class RefSystemHandlers:
     def __init__(self, base_commands_db: BaseCommands,
                  config_creator: ConfigCreator):
         self.config_creator = config_creator

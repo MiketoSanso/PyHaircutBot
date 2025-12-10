@@ -1,9 +1,9 @@
 import logging
 import os
 import json
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 from typing import Optional, Any
-from Scripts.Utils.ProjectPathFinder import ProjectPathFinder
+from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 class ConfigCreator:
     def __init__(self, path_finder: ProjectPathFinder):
@@ -75,20 +75,3 @@ class ConfigCreator:
 
     def get_config_value(self, key: str) -> Any:
         return getattr(self._config, key)
-
-@dataclass
-class Config:
-    count_haircuts_to_free: int = 0
-    count_referral_haircuts_to_bonus: int = 0
-    coins_for_one_referral: int = 0
-    coins_for_free_haircut: int = 0
-
-    def __post_init__(self):
-        if self.count_haircuts_to_free < 0 or self.count_haircuts_to_free > 50:
-            raise ValueError("count must be between 0 and 50")
-        if self.count_referral_haircuts_to_bonus < 0 or self.count_referral_haircuts_to_bonus > 50:
-            raise ValueError("count must be between 0 and 50")
-        if self.coins_for_one_referral < 0 or self.coins_for_one_referral > 1000:
-            raise ValueError("count must be between 0 and 1000")
-        if self.coins_for_free_haircut < 0 or self.coins_for_free_haircut > 10000:
-            raise ValueError("count must be between 0 and 10000")
