@@ -2,11 +2,11 @@ import os
 import json
 from dataclasses import asdict
 from typing import Optional, Any
-from Scripts.Application.Interfaces.TechConfigRepository import TechConfigRepository
+from Scripts.Application.Interfaces.HaircutConfigRepository import HaircutConfigRepository
 from Scripts.Domain.HaircutConfig import HaircutConfig
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
-class JsonConfigManager(TechConfigRepository):
+class JsonConfigManager(HaircutConfigRepository):
     def __init__(self, path_finder: ProjectPathFinder):
         self.path_finder = path_finder
         self.configs_dir = self.path_finder.configs_path

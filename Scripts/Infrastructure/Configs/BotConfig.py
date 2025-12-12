@@ -2,10 +2,12 @@ import os
 from pathlib import Path
 from typing import Optional
 from dotenv import load_dotenv
+
+from Scripts.Application.Interfaces.TechConfigRepository import TechConfigRepository
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 
-class BotConfig:
+class BotConfig(TechConfigRepository):
     _instance: Optional['BotConfig'] = None
 
     def __new__(cls, env_path: Optional[Path] = None):
@@ -20,4 +22,7 @@ class BotConfig:
             load_dotenv(dotenv_path=self.env_path)
             self._initialized = True
 
-            self.bot_token = os.getenv("BOT_KEY")
+            self.__bot_token = os.getenv("BOT_KEY")
+
+    def get_bot_token(self) -> str:
+        return self.__bot_token

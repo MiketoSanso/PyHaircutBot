@@ -1,9 +1,9 @@
-from Scripts.Application.Interfaces.TechConfigRepository import TechConfigRepository
+from Scripts.Application.Interfaces.HaircutConfigRepository import HaircutConfigRepository
 
 
-class GetTechDataUseCase:
+class GetHaircutDataUseCase:
     def __init__(self,
-                 tech_config_repo: TechConfigRepository):
+                 tech_config_repo: HaircutConfigRepository):
         self.tech_config_repo = tech_config_repo
 
     def execute(self) -> dict:

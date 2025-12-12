@@ -11,6 +11,7 @@ class ReviewHandlers:
                  upsert_review_uc: UpsertReviewUseCase,
                  get_review_by_index_uc: GetReviewByIndexUseCase,
                  get_count_reviews_uc: GetCountReviewsUseCase):
+        self.keyboard_reviews = None
         self.get_count_reviews_uc = get_count_reviews_uc
         self.get_review_by_index_uc = get_review_by_index_uc
         self.upsert_review_uc = upsert_review_uc
@@ -30,16 +31,17 @@ class ReviewHandlers:
             },
             fallbacks=[
                 CommandHandler("cancel", self.cancel),
-                MessageHandler(filters.COMMAND, self.cancel)
+                MessageHandler(filters.COMMAND, self.cancel),
+                MessageHandler(filters.Regex(r'^[\U0001F300-\U0001F9FF]'), self.cancel)
             ],
         )
 
-        application.add_handler(review_conversation)
-        application.add_handler(CallbackQueryHandler(self.button_handler))
+        application.add_handler(review_conversation, group=0)
+        application.add_handler(CallbackQueryHandler(self.button_handler), group=0)
 
-        application.add_handler(MessageHandler(filters.Regex(r'^⭐'), self.reviews))
+        application.add_handler(MessageHandler(filters.Regex(r'^⭐'), self.reviews), group=1)
 
-        application.add_handler(CommandHandler("reviews", self.reviews))
+        application.add_handler(CommandHandler("reviews", self.reviews), group=1)
 
     def setup_keyboards(self):
         next_review_button = InlineKeyboardButton(
@@ -62,7 +64,7 @@ class ReviewHandlers:
         elif query.data == "next_review":
             await self.next_review(update, context)
 
-    async def add_review(self, update: Update) -> int:
+    async def add_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await update.message.reply_text(f"ОСТАВИТЬ ОТЗЫВ\n\n"
                                         f"Пожалуйста, опишите, что вам понравилось/не понравилось на стрижке?")
         return self.REVIEW_TEXT
@@ -107,6 +109,10 @@ class ReviewHandlers:
     async def send_review_text(self, update: Update,  context: ContextTypes.DEFAULT_TYPE) -> None:
         data = self.get_review_by_index_uc.execute(context.user_data['review_index'])
 
+        if data is None:
+            await update.message.reply_text("Отзывов пока нет! Будьте первыми :D")
+            return
+
         text = (f"ОТЗЫВЫ\n\n"
                 f"Пользователь: {data[0]}\n"
                 f"Отзыв: {data[1]}\n"
@@ -123,7 +129,9 @@ class ReviewHandlers:
                 reply_markup=InlineKeyboardMarkup(self.keyboard_reviews))
 
     async def next_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if context.user_data['review_index'] + 1 > self.get_count_reviews_uc.execute() - 1:
+        if self.get_count_reviews_uc.execute() - 1 == 0:
+            return
+        elif context.user_data['review_index'] + 1 > self.get_count_reviews_uc.execute() - 1:
             context.user_data['review_index'] = 0
         else:
             context.user_data['review_index'] += 1
@@ -131,7 +139,9 @@ class ReviewHandlers:
         await self.send_review_text(update, context)
 
     async def last_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if context.user_data['review_index'] - 1 < 0:
+        if self.get_count_reviews_uc.execute() - 1 == 0:
+            return
+        elif context.user_data['review_index'] - 1 < 0:
             context.user_data['review_index'] = self.get_count_reviews_uc.execute() - 1
         else:
             context.user_data['review_index'] -= 1

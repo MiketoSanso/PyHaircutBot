@@ -1,11 +1,11 @@
 from Scripts.Application.Interfaces.AccountRepository import AccountRepository
-from Scripts.Application.Interfaces.TechConfigRepository import TechConfigRepository
+from Scripts.Application.Interfaces.HaircutConfigRepository import HaircutConfigRepository
 
 
 class GetUserDataUseCase:
     def __init__(self,
                  account_repo: AccountRepository,
-                 tech_config_repo: TechConfigRepository):
+                 tech_config_repo: HaircutConfigRepository):
         self.account_repo = account_repo
         self.tech_config_repo = tech_config_repo
 

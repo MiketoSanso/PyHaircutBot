@@ -1,5 +1,5 @@
 from telegram import Update, ReplyKeyboardMarkup
-from telegram.ext import CommandHandler, MessageHandler, filters
+from telegram.ext import CommandHandler, MessageHandler, filters, ContextTypes
 from Scripts.Application.User.AddUserUseCase import AddUserUseCase
 from Scripts.Application.User.GetPriceUseCase import GetPriceUseCase
 from Scripts.Application.User.GetUserDataUseCase import GetUserDataUseCase
@@ -17,16 +17,17 @@ class SmallHandlers:
         self.reply_keyboard = None
 
     def setup_handlers(self, application):
-        application.add_handler(MessageHandler(filters.Regex(r'^👾'), self.start))
-        application.add_handler(MessageHandler(filters.Regex(r'^💰'), self.price))
-        application.add_handler(MessageHandler(filters.Regex(r'^👤'), self.account))
-        application.add_handler(MessageHandler(filters.Regex(r'^❓'), self.help_command))
+        application.add_handler(MessageHandler(filters.ALL, self.handle_message), group=2)
 
-        application.add_handler(CommandHandler("start", self.start))
-        application.add_handler(CommandHandler("price", self.price))
-        application.add_handler(CommandHandler("account", self.account))
-        application.add_handler(CommandHandler("help", self.help_command))
-        application.add_handler(MessageHandler(filters.ALL, self.handle_message))
+        application.add_handler(MessageHandler(filters.Regex(r'^👾'), self.start), group=1)
+        application.add_handler(MessageHandler(filters.Regex(r'^💰'), self.price), group=1)
+        application.add_handler(MessageHandler(filters.Regex(r'^👤'), self.account), group=1)
+        application.add_handler(MessageHandler(filters.Regex(r'^❓'), self.help_command), group=1)
+
+        application.add_handler(CommandHandler("start", self.start), group=1)
+        application.add_handler(CommandHandler("price", self.price), group=1)
+        application.add_handler(CommandHandler("account", self.account), group=1)
+        application.add_handler(CommandHandler("help", self.help_command), group=1)
 
     def _setup_keyboards(self):
         keyboard = [
@@ -46,7 +47,7 @@ class SmallHandlers:
             one_time_keyboard=False
         )
 
-    async def start(self, update: Update) -> None:
+    async def start(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text("\"Стриж и КО\"\n\n"
                                         "Привет! Рады видеть тебя здесь!\n"
                                         "Наша компания предоставляет услуги стрижки по очень выгодным ценам!\n"
@@ -57,30 +58,31 @@ class SmallHandlers:
                                         reply_markup=self.reply_keyboard
                                         )
 
-    async def handle_message(self, update: Update) -> None:
+    async def handle_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user = update.effective_user
         user_id = user.id
         username = user.username if user.username is not None else "user_" + str(user.id)
         self.add_user_use_case.execute(user_id, username)
         self._setup_keyboards()
+        return
 
-    async def price(self, update: Update) -> None:
+    async def price(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text("ПРАЙС\n\n"
                                         f"{self.get_price_use_case.execute()}\n")
 
-    async def account(self, update: Update) -> None:
+    async def account(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         user = update.effective_user
         user_id = user.id
 
         data = self.get_user_use_case.execute(user_id)
 
         await update.message.reply_text(f"АККАУНТ\n\n"
-                                        f"Количество стрижек у нас: {data["haircuts"]}\n"
-                                        f"Количество бесплатных стрижек: {data["free_haircuts"]}\n\n"
-                                        f"Реферальные баллы за приглашённых друзей: {data["referral_coins"]}\n"
-                                        f"Оставшееся количество стрижек для получения 1 бесплатной: {data["haircuts_to_free"]}\n")
+                                        f"Количество стрижек у нас: {data['haircuts']}\n"
+                                        f"Количество бесплатных стрижек: {data['free_haircuts']}\n\n"
+                                        f"Реферальные баллы за приглашённых друзей: {data['referral_coins']}\n"
+                                        f"Оставшееся количество стрижек для получения 1 бесплатной: {data['haircuts_to_free']}\n")
 
-    async def help_command(self, update: Update) -> None:
+    async def help_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         await update.message.reply_text(f"СУЩЕСТВУЮЩИЕ КОМАНДЫ\n\n"
                                         f"/start - Узнать основную информацию.\n"
                                         f"/price - Узнать прайс на стрижки.\n"
