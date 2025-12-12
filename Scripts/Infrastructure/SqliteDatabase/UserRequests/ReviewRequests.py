@@ -1,12 +1,13 @@
 import sqlite3
-from Scripts.Infrastructure.Database.Database import HaircutDatabase
+from Scripts.Application.Interfaces.ReviewRepository import ReviewRepository
+from Scripts.Infrastructure.SqliteDatabase.Database import HaircutDatabase
 
 
-class ReviewRequests:
+class ReviewRequests(ReviewRepository):
     def __init__(self, db: HaircutDatabase):
         self.db = db
 
-    def get_count_reviews(self) -> int:
+    def get_count(self) -> int:
         try:
             self.db.cursor.execute("SELECT COUNT(*) FROM reviews")
             result = self.db.cursor.fetchone()
@@ -14,7 +15,7 @@ class ReviewRequests:
         except sqlite3.Error as e:
             return 0
 
-    def get_review_by_index(self, index: int) -> tuple[str, str, int]:
+    def get_by_index(self, index: int) -> tuple[str, str, int]:
         self.db.cursor.execute('SELECT username, textReview, estimation '
                                'FROM reviews '
                                'ORDER BY estimation DESC '
@@ -22,18 +23,18 @@ class ReviewRequests:
 
         return self.db.cursor.fetchone()
 
-    def add_or_update_review(self, id_user: str, username: str, text_review: str, estimation: int) -> bool:
+    def upsert(self, user_id: int, username: str, text_review: str, estimation: int) -> bool:
 
-        self.db.cursor.execute('SELECT 1 FROM reviews WHERE idUser = ?', (id_user,))
+        self.db.cursor.execute('SELECT 1 FROM reviews WHERE idUser = ?', (user_id,))
 
         exists = self.db.cursor.fetchone() is not None
 
         if exists:
             self.db.cursor.execute('UPDATE reviews SET idUser = ?, username = ?, textReview = ?, estimation = ?',
-                                   (id_user, username, text_review, estimation))
+                                   (user_id, username, text_review, estimation))
         else:
             self.db.cursor.execute('INSERT INTO reviews (idUser, username, textReview, estimation) VALUES (?, ?, ?, ?)',
-                                   (id_user, username, text_review, estimation))
+                                   (user_id, username, text_review, estimation))
 
         self.db.connect.commit()
         return not exists

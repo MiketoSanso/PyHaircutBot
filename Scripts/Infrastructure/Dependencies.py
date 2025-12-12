@@ -4,7 +4,7 @@ from Scripts.Infrastructure.Database.UserRequests.InfoRequests import InfoComman
 from Scripts.Infrastructure.Database.UserRequests.ReviewRequests import ReviewCommands
 from Scripts.Infrastructure.Database.Database import HaircutDatabase
 from Scripts.Presentation.BotCommandsInstaller import BotCommandsInstaller
-from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
+from Scripts.Infrastructure.Services.JsonConfigManager import JsonConfigManager
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 
@@ -12,7 +12,7 @@ class DiContainer:
 
     def __init__(self):
         self.__path_finder = ProjectPathFinder()
-        self.__config_creator = ConfigCreator(self.__path_finder)
+        self.__config_creator = JsonConfigManager(self.__path_finder)
         self.__db = HaircutDatabase()
         self.set_commands()
         self.bot = BotCommandsInstaller(self.__admin_commands,

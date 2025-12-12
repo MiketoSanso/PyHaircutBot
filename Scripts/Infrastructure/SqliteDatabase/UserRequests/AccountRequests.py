@@ -1,8 +1,9 @@
 import sqlite3
-from Scripts.Infrastructure.Database.Database import HaircutDatabase
+from Scripts.Application.Interfaces.AccountRepository import AccountRepository
+from Scripts.Infrastructure.SqliteDatabase.Database import HaircutDatabase
 
 
-class AccountRequests:
+class AccountRequests(AccountRepository):
     def __init__(self, db: HaircutDatabase):
         self.db = db
 
@@ -30,7 +31,7 @@ class AccountRequests:
         except sqlite3.Error as e:
             return 0
 
-    def add_user_to_db(self, id_user: str, username: str):
+    def add_user(self, id_user: int, username: str):
         self.db.cursor.execute(
             'INSERT OR IGNORE INTO accounts (idUser, username, referralCoins, countHaircuts, countFreeHaircuts) VALUES (?, ?, ?, ?, ?)',
             (id_user, username, 0, 0, 0))
@@ -41,7 +42,6 @@ class AccountRequests:
             self.db.cache_users.add(id_user)
 
     def add_referrer(self, id_user: str, referrer_username: str) -> bool:
-
         if referrer_username.startswith('@'):
             referrer_username = referrer_username[1:]
 

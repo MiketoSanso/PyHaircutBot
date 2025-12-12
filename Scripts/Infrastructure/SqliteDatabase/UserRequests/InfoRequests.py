@@ -1,8 +1,9 @@
 import sqlite3
-from Scripts.Infrastructure.Database.Database import HaircutDatabase
+from Scripts.Application.Interfaces.InfoRepository import InfoRepository
+from Scripts.Infrastructure.SqliteDatabase.Database import HaircutDatabase
 
 
-class InfoRequests:
+class InfoRequests(InfoRepository):
     def __init__(self, db: HaircutDatabase):
         self.db = db
 

@@ -1,12 +1,12 @@
-import logging
 import os
 import json
 from dataclasses import asdict
 from typing import Optional, Any
+from Scripts.Application.Interfaces.TechConfigRepository import TechConfigRepository
 from Scripts.Domain.TechConfig import TechConfig
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
-class ConfigCreator:
+class JsonConfigManager(TechConfigRepository):
     def __init__(self, path_finder: ProjectPathFinder):
         self.path_finder = path_finder
         self.configs_dir = self.path_finder.configs_path

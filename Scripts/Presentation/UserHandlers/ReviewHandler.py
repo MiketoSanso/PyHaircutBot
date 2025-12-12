@@ -1,12 +1,19 @@
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler, \
     CallbackQueryHandler
-from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCommands
+from Scripts.Application.User.GetCountReviewsUseCase import GetCountReviewsUseCase
+from Scripts.Application.User.GetReviewByIndexUseCase import GetReviewByIndexUseCase
+from Scripts.Application.User.UpsertReviewUseCase import UpsertReviewUseCase
 
 
 class ReviewHandlers:
-    def __init__(self):
-        base_commands_db
+    def __init__(self,
+                 upsert_review_uc: UpsertReviewUseCase,
+                 get_review_by_index_uc: GetReviewByIndexUseCase,
+                 get_count_reviews_uc: GetCountReviewsUseCase):
+        self.get_count_reviews_uc = get_count_reviews_uc
+        self.get_review_by_index_uc = get_review_by_index_uc
+        self.upsert_review_uc = upsert_review_uc
         self.REVIEW_TEXT, self.REVIEW_RATING = range(2)
 
         self.setup_keyboards()
@@ -67,14 +74,14 @@ class ReviewHandlers:
         return self.REVIEW_RATING
 
     async def review_rating_received(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-        rating = update.message.text
+        estimation = update.message.text
         review_text = context.user_data.get('review_text', '')
         user_id = update.effective_user.id
         username = update.effective_user.username or f"user_{user_id}"
 
-        if rating.isdigit() and 1 <= int(rating) <= 5:
+        if estimation.isdigit() and 1 <= int(estimation) <= 5:
             context.user_data.pop('review_text', None)
-            is_review_added = self.base_commands_db.add_or_update_review(user_id, username, review_text, rating)
+            is_review_added = self.upsert_review_uc.execute(user_id, username, review_text, estimation)
             status = "изменён"
 
             if is_review_added:
@@ -82,7 +89,7 @@ class ReviewHandlers:
 
             await update.message.reply_text("Спасибо за ваш отзыв!\n"
                                             f"Текст: {review_text}\n"
-                                            f"Оценка: {rating}/5\n\n"
+                                            f"Оценка: {estimation}/5\n\n"
                                             f"Отзыв успешно {status}!")
             return ConversationHandler.END
         else:
@@ -97,9 +104,8 @@ class ReviewHandlers:
 
         await self.send_review_text(update, context)
 
-    async def send_review_text(self, update: Update,
-                               context: ContextTypes.DEFAULT_TYPE) -> None:
-        data = self.base_commands_db.get_review_by_index(context.user_data['review_index'])
+    async def send_review_text(self, update: Update,  context: ContextTypes.DEFAULT_TYPE) -> None:
+        data = self.get_review_by_index_uc.execute(context.user_data['review_index'])
 
         text = (f"ОТЗЫВЫ\n\n"
                 f"Пользователь: {data[0]}\n"
@@ -117,7 +123,7 @@ class ReviewHandlers:
                 reply_markup=InlineKeyboardMarkup(self.keyboard_reviews))
 
     async def next_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        if context.user_data['review_index'] + 1 > self.base_commands_db.get_count_reviews() - 1:
+        if context.user_data['review_index'] + 1 > self.get_count_reviews_uc.execute() - 1:
             context.user_data['review_index'] = 0
         else:
             context.user_data['review_index'] += 1
@@ -126,7 +132,7 @@ class ReviewHandlers:
 
     async def last_review(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if context.user_data['review_index'] - 1 < 0:
-            context.user_data['review_index'] = self.base_commands_db.get_count_reviews() - 1
+            context.user_data['review_index'] = self.get_count_reviews_uc.execute() - 1
         else:
             context.user_data['review_index'] -= 1
 

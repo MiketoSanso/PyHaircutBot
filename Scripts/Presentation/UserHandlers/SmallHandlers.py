@@ -1,14 +1,21 @@
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import CommandHandler, MessageHandler, filters
-from Scripts.Infrastructure.Database.UserRequests.AccountRequests import BaseCommands
-from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
+from Scripts.Application.User.AddUserUseCase import AddUserUseCase
+from Scripts.Application.User.GetPriceUseCase import GetPriceUseCase
+from Scripts.Application.User.GetUserDataUseCase import GetUserDataUseCase
 
 
 class SmallHandlers:
 
-    def __init__(self):
+    def __init__(self,
+                 get_user_use_case: GetUserDataUseCase,
+                 add_user_use_case: AddUserUseCase,
+                 get_price_use_case: GetPriceUseCase):
+        self.get_price_use_case = get_price_use_case
+        self.get_user_use_case = get_user_use_case
+        self.add_user_use_case = add_user_use_case
         self.reply_keyboard = None
-        self.setup_keyboards()
+        self._setup_keyboards()
 
     def setup_handlers(self, application):
         application.add_handler(MessageHandler(filters.Regex(r'^👾'), self.start))
@@ -22,7 +29,7 @@ class SmallHandlers:
         application.add_handler(CommandHandler("help", self.help_command))
         application.add_handler(MessageHandler(filters.ALL, self.handle_message))
 
-    def setup_keyboards(self):
+    def _setup_keyboards(self):
         keyboard = [
             ["👾 Начать работу с ботом"],
             ["💰 Прайс"],
@@ -54,24 +61,24 @@ class SmallHandlers:
     async def handle_message(self, update: Update) -> None:
         user = update.effective_user
         user_id = user.id
-        username = user.username if user.username is not None else "user_" + user.id
-        self.base_commands_db.add_user_to_db(user_id, username)
+        username = user.username if user.username is not None else "user_" + str(user.id)
+        self.add_user_use_case.execute(user_id, username)
 
     async def price(self, update: Update) -> None:
         await update.message.reply_text("ПРАЙС\n\n"
-                                        f"{self.base_commands_db.get_price()}\n")
+                                        f"{self.get_price_use_case.execute()}\n")
 
     async def account(self, update: Update) -> None:
         user = update.effective_user
         user_id = user.id
-        count = self.base_commands_db.get_count_haircuts(user_id) % self.config_creator.get_config_value(
-            "count_haircuts_to_free") if self.base_commands_db.get_count_haircuts(user_id) != 0 else 3
+
+        data = self.get_user_use_case.execute(user_id)
 
         await update.message.reply_text(f"АККАУНТ\n\n"
-                                        f"Количество стрижек у нас: {self.base_commands_db.get_count_haircuts(user_id)}\n"
-                                        f"Количество бесплатных стрижек: {self.base_commands_db.get_count_free_haircuts(user_id)}\n\n"
-                                        f"Реферальные баллы за приглашённых друзей: {self.base_commands_db.get_referral_coins(user_id)}\n"
-                                        f"Оставшееся количество стрижек для получения 1 бесплатной: {count}\n")
+                                        f"Количество стрижек у нас: {data["haircuts"]}\n"
+                                        f"Количество бесплатных стрижек: {data["free_haircuts"]}\n\n"
+                                        f"Реферальные баллы за приглашённых друзей: {data["referral_coins"]}\n"
+                                        f"Оставшееся количество стрижек для получения 1 бесплатной: {data["haircuts_to_free"]}\n")
 
     async def help_command(self, update: Update) -> None:
         await update.message.reply_text(f"СУЩЕСТВУЮЩИЕ КОМАНДЫ\n\n"

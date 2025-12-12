@@ -2,7 +2,8 @@ from telegram import Update, ReplyKeyboardMarkup, BotCommand
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 from Scripts.Infrastructure.Configs.BotConfig import BotConfig
-from Scripts.Infrastructure.Services.ConfigCreator import ConfigCreator
+from Scripts.Infrastructure.Services.JsonConfigManager import JsonConfigManager
+from Scripts.Presentation.UserHandlers.RefSystemHandlers import RefSystemHandlers
 from Scripts.Presentation.UserHandlers.ReviewHandler import ReviewHandlers
 from Scripts.Presentation.UserHandlers.SmallHandlers import SmallHandlers
 
@@ -10,15 +11,16 @@ from Scripts.Presentation.UserHandlers.SmallHandlers import SmallHandlers
 class BotCommandsInstaller:
 
     def __init__(self,
-                 config_creator: ConfigCreator,
+                 config_creator: JsonConfigManager,
                  small_handlers: SmallHandlers,
                  review_handlers: ReviewHandlers,
+                 ref_system_handlers: RefSystemHandlers,
                  config: BotConfig):
         self.config_creator = config_creator
         self.small_handlers = small_handlers
         self.review_handlers = review_handlers
+        self.ref_system_handlers = ref_system_handlers
         self.config = config
-
 
         self.REFERRER_TEXT = 0
 
@@ -26,6 +28,9 @@ class BotCommandsInstaller:
         application = Application.builder().token(self.config.bot_token).build()
         self.setup_handlers(application)
         self.setup_keyboards()
+        self.small_handlers.setup_handlers(application)
+        self.review_handlers.setup_handlers(application)
+        self.ref_system_handlers.setup_handlers(application)
 
         async def set_commands(app):
             commands = [
