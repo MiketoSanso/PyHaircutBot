@@ -20,5 +20,5 @@ class AccountRepository(ABC):
         pass
 
     @abstractmethod
-    def add_referrer(self, id_user: str, referrer_username: str) -> bool:
+    def add_referrer(self, id_user: int, referrer_username: str) -> bool:
         pass

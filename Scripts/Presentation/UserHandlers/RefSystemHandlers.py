@@ -1,15 +1,14 @@
 from telegram import Update
 from telegram.ext import CommandHandler, MessageHandler, filters, ContextTypes, ConversationHandler
-
 from Scripts.Application.User.AddReferrerUseCase import AddReferrerUseCase
-from Scripts.Infrastructure.Services.JsonConfigManager import JsonConfigManager
+from Scripts.Application.User.GetTechDataUseCase import GetTechDataUseCase
 
 
 class RefSystemHandlers:
-    def __init__(self, config_creator: JsonConfigManager,
+    def __init__(self, get_tech_data_uc: GetTechDataUseCase,
                  add_referrer_uc: AddReferrerUseCase):
+        self.get_tech_data_uc = get_tech_data_uc
         self.add_referrer_uc = add_referrer_uc
-        self.config_creator = config_creator
 
         self.REFERRER_TEXT = 0
 
@@ -35,13 +34,14 @@ class RefSystemHandlers:
         application.add_handler(CommandHandler("referral", self.referral))
 
     async def referral(self, update: Update) -> None:
-        ref_haircuts_to_bonus = self.config_creator.get_config_value("count_referral_haircuts_to_bonus")
-        coins_for_referral = self.config_creator.get_config_value("coins_for_one_referral")
-        coins_free_haircut = self.config_creator.get_config_value("coins_for_free_haircut")
+        data = self.get_tech_data_uc.execute()
+        ref_haircuts_to_bonus = data["count_referral_haircuts_to_bonus"]
+        coins_for_referral = data["coins_for_one_referral"]
+        coins_free_haircut = data["coins_for_free_haircut"]
 
         await update.message.reply_text(f"РЕФЕРАЛЬНАЯ СИСТЕМА\n\n"
                                         f"Пригласи друзей и получи реферальные баллы!\n"
-                                        f"За каждого приведённого друга, прошедшего {ref_haircuts_to_bonus} "
+                                        f"За каждого приведённого друга, прошедшего {ref_haircuts_to_bonus}"
                                         f"платных стрижкек ты получаешь {coins_for_referral} баллов.\n"
                                         f"{coins_free_haircut} баллов => 1 бесплатная стрижка!")
 

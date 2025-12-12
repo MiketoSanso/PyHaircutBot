@@ -15,7 +15,6 @@ class SmallHandlers:
         self.get_user_use_case = get_user_use_case
         self.add_user_use_case = add_user_use_case
         self.reply_keyboard = None
-        self._setup_keyboards()
 
     def setup_handlers(self, application):
         application.add_handler(MessageHandler(filters.Regex(r'^👾'), self.start))
@@ -63,6 +62,7 @@ class SmallHandlers:
         user_id = user.id
         username = user.username if user.username is not None else "user_" + str(user.id)
         self.add_user_use_case.execute(user_id, username)
+        self._setup_keyboards()
 
     async def price(self, update: Update) -> None:
         await update.message.reply_text("ПРАЙС\n\n"

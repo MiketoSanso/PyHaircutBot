@@ -1,19 +1,19 @@
 from Scripts.Application.Interfaces.AccountRepository import AccountRepository
-from Scripts.Infrastructure.Services.JsonConfigManager import JsonConfigManager
+from Scripts.Application.Interfaces.TechConfigRepository import TechConfigRepository
 
 
 class GetUserDataUseCase:
     def __init__(self,
                  account_repo: AccountRepository,
-                 config_creator: JsonConfigManager):
+                 tech_config_repo: TechConfigRepository):
         self.account_repo = account_repo
-        self.config_creator = config_creator
+        self.tech_config_repo = tech_config_repo
 
     def execute(self, user_id: int) -> dict:
         haircuts = self.account_repo.get_count_haircuts(user_id)
         free_haircuts = self.account_repo.get_count_free_haircuts(user_id)
         referral_coins = self.account_repo.get_referral_coins(user_id)
-        haircuts_to_free = self.account_repo.get_count_haircuts(user_id) % self.config_creator.get_config_value(
+        haircuts_to_free = self.account_repo.get_count_haircuts(user_id) % self.tech_config_repo.get_config_value(
             "count_haircuts_to_free") if self.account_repo.get_count_haircuts(user_id) != 0 else 3
 
         return {

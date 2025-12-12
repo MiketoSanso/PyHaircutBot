@@ -57,4 +57,5 @@ class AccountRequests(AccountRepository):
         self.db.cursor.execute("UPDATE accounts SET idUser = ?, referrer = ?",
                                id_user, referrer_username)
 
+        self.db.connect.commit()
         return True

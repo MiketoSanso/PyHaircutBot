@@ -1,9 +1,8 @@
-import os
 from dataclasses import dataclass
 
 
 @dataclass
-class TechConfig:
+class HaircutConfig:
     count_haircuts_to_free: int = 0
     count_referral_haircuts_to_bonus: int = 0
     coins_for_one_referral: int = 0

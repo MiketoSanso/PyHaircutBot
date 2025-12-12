@@ -3,7 +3,7 @@ import json
 from dataclasses import asdict
 from typing import Optional, Any
 from Scripts.Application.Interfaces.TechConfigRepository import TechConfigRepository
-from Scripts.Domain.TechConfig import TechConfig
+from Scripts.Domain.HaircutConfig import HaircutConfig
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 class JsonConfigManager(TechConfigRepository):
@@ -11,7 +11,7 @@ class JsonConfigManager(TechConfigRepository):
         self.path_finder = path_finder
         self.configs_dir = self.path_finder.configs_path
         self.configs_dir.mkdir(exist_ok=True)
-        self._config: Optional[TechConfig] = None
+        self._config: Optional[HaircutConfig] = None
 
         self.load_or_create_config()
 
@@ -20,14 +20,14 @@ class JsonConfigManager(TechConfigRepository):
             try:
                 with open(self.configs_dir / "config.json", 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    self._config = TechConfig(**data)
+                    self._config = HaircutConfig(**data)
             except Exception as e:
                 self.create_default_config()
         else:
             self.create_default_config()
 
     def create_default_config(self):
-        self._config = TechConfig(
+        self._config = HaircutConfig(
             count_haircuts_to_free = 3,
             count_referral_haircuts_to_bonus = 3,
             coins_for_one_referral = 100,

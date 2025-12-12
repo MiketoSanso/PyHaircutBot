@@ -1,3 +1,3 @@
-from Scripts.Infrastructure.Dependencies import DiContainer
+from Scripts.Infrastructure.Dependencies import Dependencies
 
-container = DiContainer()
+container = Dependencies()

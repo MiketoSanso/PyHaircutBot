@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from Scripts.Domain.TechConfig import TechConfig
+from Scripts.Domain.HaircutConfig import HaircutConfig
 
 
 class TechConfigRepository(ABC):
