@@ -1,8 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from Scripts.Domain.HaircutConfig import HaircutConfig
-
 
 class HaircutConfigRepository(ABC):
     @abstractmethod
@@ -19,6 +17,18 @@ class HaircutConfigRepository(ABC):
 
     @abstractmethod
     def change_haircuts_to_free(self, count: int):
+        pass
+
+    @abstractmethod
+    def change_ref_haircuts_to_bonus(self, count: int):
+        pass
+
+    @abstractmethod
+    def change_coins_for_ref(self, count: int):
+        pass
+
+    @abstractmethod
+    def change_coins_for_free_haircut(self, count: int):
         pass
 
     @abstractmethod

@@ -3,7 +3,7 @@ import json
 from dataclasses import asdict
 from typing import Optional, Any
 from Scripts.Application.Interfaces.HaircutConfigRepository import HaircutConfigRepository
-from Scripts.Domain.HaircutConfig import HaircutConfig
+from Scripts.Infrastructure.Configs.HaircutConfig import HaircutConfig
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 
 class JsonConfigManager(HaircutConfigRepository):
@@ -29,8 +29,8 @@ class JsonConfigManager(HaircutConfigRepository):
     def create_default_config(self):
         self._config = HaircutConfig(
             count_haircuts_to_free = 3,
-            count_referral_haircuts_to_bonus = 3,
-            coins_for_one_referral = 100,
+            count_ref_haircuts_to_bonus= 3,
+            coins_for_referral= 100,
             coins_for_free_haircut = 300
         )
 
@@ -46,6 +46,27 @@ class JsonConfigManager(HaircutConfigRepository):
             raise ValueError("count must be between 0 and 50")
 
         self._config.count_haircuts_to_free = count
+        self.save_config()
+
+    def change_ref_haircuts_to_bonus(self, count: int):
+        if count < 0 or count > 50:
+            raise ValueError("count must be between 0 and 50")
+
+        self._config.count_ref_haircuts_to_bonus = count
+        self.save_config()
+
+    def change_coins_for_ref(self, count: int):
+        if count < 0 or count > 1000:
+            raise ValueError("count must be between 0 and 1000")
+
+        self._config.coins_for_referral = count
+        self.save_config()
+
+    def change_coins_for_free_haircut(self, count: int):
+        if count < 0 or count > 10000:
+            raise ValueError("count must be between 0 and 10000")
+
+        self._config.coins_for_free_haircut = count
         self.save_config()
 
     def get_config_value(self, key: str) -> Any:

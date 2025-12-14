@@ -7,55 +7,83 @@ class AccountRequests(AccountRepository):
     def __init__(self, db: HaircutDatabase):
         self.db = db
 
-    def get_count_haircuts(self, id_user: int) -> int:
+    def get_count_haircuts(self, user_id: int) -> int:
         try:
-            self.db.cursor.execute("SELECT countHaircuts FROM accounts WHERE idUser = ?", (id_user,))
+            self.db.cursor.execute(
+                "SELECT countHaircuts FROM accounts WHERE user_id = ?",
+                (user_id,)
+            )
             result = self.db.cursor.fetchone()
             return result[0] if result else 0
         except sqlite3.Error as e:
             return 0
 
-    def get_count_free_haircuts(self, id_user: int) -> int:
+    def get_count_free_haircuts(self, user_id: int) -> int:
         try:
-            self.db.cursor.execute("SELECT countFreeHaircuts FROM accounts WHERE idUser = ?", (id_user,))
+            self.db.cursor.execute(
+                "SELECT countFreeHaircuts FROM accounts WHERE user_id = ?",
+                (user_id,)
+            )
             result = self.db.cursor.fetchone()
             return result[0] if result else 0
         except sqlite3.Error as e:
             return 0
 
-    def get_referral_coins(self, id_user: int) -> int:
+    def get_referral_coins(self, user_id: int) -> int:
         try:
-            self.db.cursor.execute("SELECT referralCoins FROM accounts WHERE idUser = ?", (id_user,))
+            self.db.cursor.execute(
+                "SELECT referralCoins FROM accounts WHERE user_id = ?",
+                (user_id,)
+            )
             result = self.db.cursor.fetchone()
             return result[0] if result else 0
         except sqlite3.Error as e:
             return 0
 
-    def add_user(self, id_user: int, username: str):
+    def add_user(self, user_id: int, username: str):
         self.db.cursor.execute(
-            'INSERT OR IGNORE INTO accounts (idUser, username, referralCoins, countHaircuts, countFreeHaircuts) VALUES (?, ?, ?, ?, ?)',
-            (id_user, username, 0, 0, 0))
+            'INSERT OR IGNORE INTO accounts ('
+            'user_id, '
+            'username, '
+            'referralCoins, '
+            'countHaircuts, '
+            'countFreeHaircuts'
+            ') VALUES (?, ?, ?, ?, ?)',
+            (user_id, username, 0, 0, 0)
+        )
 
         self.db.connect.commit()
 
         if self.db.cursor.rowcount != 0:
-            self.db.cache_users.add(id_user)
+            self.db.cache_users.add(user_id)
 
-    def add_referrer(self, id_user: str, referrer_username: str) -> bool:
+    def add_referrer(self, user_id: str, referrer_username: str) -> bool:
         if referrer_username.startswith('@'):
             referrer_username = referrer_username[1:]
 
         self.db.cursor.execute(
-            "SELECT idUser FROM accounts WHERE username = ?",
+            "SELECT user_id FROM accounts WHERE username = ?",
             (referrer_username,)
         )
-        referrer_row = self.db.cursor.fetchone()
+        referrer = self.db.cursor.fetchone()
 
-        if referrer_row is None:
+        if referrer is None or referrer[0] == user_id:
+            return False
+        print(referrer[0])
+
+        self.db.cursor.execute(
+            "SELECT referrer FROM accounts WHERE user_id = ?",
+            (user_id,)
+        )
+        existing_referrer = self.db.cursor.fetchone()
+        print(existing_referrer[0])
+        if existing_referrer and existing_referrer[0] is not None:
             return False
 
-        self.db.cursor.execute("UPDATE accounts SET idUser = ?, referrer = ?",
-                               id_user, referrer_username)
+        self.db.cursor.execute(
+            "UPDATE accounts SET referrer = ? WHERE user_id = ?",
+            (referrer_username, user_id)
+        )
 
         self.db.connect.commit()
         return True

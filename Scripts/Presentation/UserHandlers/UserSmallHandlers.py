@@ -5,7 +5,7 @@ from Scripts.Application.User.GetPriceUseCase import GetPriceUseCase
 from Scripts.Application.User.GetUserDataUseCase import GetUserDataUseCase
 
 
-class SmallHandlers:
+class UserSmallHandlers:
 
     def __init__(self,
                  get_user_use_case: GetUserDataUseCase,

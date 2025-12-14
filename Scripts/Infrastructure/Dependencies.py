@@ -17,7 +17,7 @@ from Scripts.Infrastructure.Services.JsonConfigManager import JsonConfigManager
 from Scripts.Infrastructure.Services.ProjectPathFinder import ProjectPathFinder
 from Scripts.Presentation.UserHandlers.RefSystemHandlers import RefSystemHandlers
 from Scripts.Presentation.UserHandlers.ReviewHandler import ReviewHandlers
-from Scripts.Presentation.UserHandlers.SmallHandlers import SmallHandlers
+from Scripts.Presentation.UserHandlers.UserSmallHandlers import UserSmallHandlers
 
 
 class Dependencies:
@@ -58,9 +58,9 @@ class Dependencies:
         review_handlers = ReviewHandlers(self.__upsert_review_uc,
                                          self.__get_review_by_index_uc,
                                          self.__get_count_reviews_uc)
-        small_handlers = SmallHandlers(self.__get_user_data_uc,
-                                       self.__add_user_uc,
-                                       self.__get_price_uc)
+        small_handlers = UserSmallHandlers(self.__get_user_data_uc,
+                                           self.__add_user_uc,
+                                           self.__get_price_uc)
 
         self.__bot = BotCommandsInstaller(small_handlers,
                                         review_handlers,

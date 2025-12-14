@@ -19,12 +19,12 @@ class RefSystemHandlers:
                 MessageHandler(filters.Regex(r'^🤝'), self.specify_referrer)
             ],
             states={
-                self.REFERRER_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.end_specify_referrer)],
+                self.REFERRER_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓)'), self.end_specify_referrer)],
             },
             fallbacks=[
                 CommandHandler("cancel", self.cancel),
                 MessageHandler(filters.COMMAND, self.cancel),
-                MessageHandler(filters.Regex(r'^[\U0001F300-\U0001F9FF]'), self.cancel)
+                MessageHandler(filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓)'), self.cancel)
             ],
         )
 
@@ -54,9 +54,20 @@ class RefSystemHandlers:
         referrer = update.message.text
         user_id = update.effective_user.id
 
-        self.add_referrer_uc.execute(user_id, referrer)
-        await update.message.reply_text(f"Реферер добавлен!")
-        return self.REFERRER_TEXT
+        is_referrer_added = self.add_referrer_uc.execute(user_id, referrer)
+
+        if is_referrer_added:
+            await update.message.reply_text(f"Реферер добавлен!")
+            return ConversationHandler.END
+        else:
+            await update.message.reply_text(f"ПРОИЗОШЛА ОШИБКА ПРИ ДОБАВЛЕНИИ!\n\n"
+                                            f"Обычно такое случается, если:\n"
+                                            f"1) Неправильно указан username реферера.\n"
+                                            f"2) Реферера нету в базе пользователей.\n"
+                                            f"3) Вы пытаетесь добавить СЕБЯ как реферера!\n"
+                                            f"Проверьте все пункты и повторите попытку.\n"
+                                            f"В случае повторной ошибки обратитесь к администратору.")
+            return self.REFERRER_TEXT
 
     async def cancel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         context.user_data.pop('review_text', None)

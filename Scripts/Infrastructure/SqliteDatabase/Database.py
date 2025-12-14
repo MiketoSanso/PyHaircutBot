@@ -6,12 +6,12 @@ class HaircutDatabase:
     def __init__(self):
         self.cache_users: Set[int] = set()
 
-        self.connect = sqlite3.connect('../../../Barbershop.db')
+        self.connect = sqlite3.connect('Barbershop.db')
         self.cursor = self.connect.cursor()
 
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS reviews (
-                idUser INT,
+                user_id INT,
                 username TEXT,
                 textReview TEXT,
                 estimation INT
@@ -19,7 +19,7 @@ class HaircutDatabase:
             ''')
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS accounts (
-                idUser INT,
+                user_id INT,
                 username TEXT,
                 referralCoins INT,
                 countHaircuts INT,
@@ -33,17 +33,14 @@ class HaircutDatabase:
                 costService INT
             )
             ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS admins (
+                user_id INT
+            )
+            ''')
 
         self.load_known_users()
 
-        self.cursor.execute("SELECT nameService FROM price")
-
-        if self.cursor.fetchall() == []:
-            self.cursor.execute('INSERT INTO price (nameService, costService) VALUES (?, ?)', ("Обычная стрижка", 500))
-            self.cursor.execute('INSERT INTO price (nameService, costService) VALUES (?, ?)', ("Бритьё бороды", 250))
-            self.cursor.execute('INSERT INTO price (nameService, costService) VALUES (?, ?)', ("Мытье головы", 150))
-        self.connect.commit()
-
     def load_known_users(self):
-        self.cursor.execute('SELECT idUser FROM accounts')
+        self.cursor.execute('SELECT user_id FROM accounts')
         self.cache_users.update([row[0] for row in self.cursor.fetchall()])

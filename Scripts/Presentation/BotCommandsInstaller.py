@@ -3,13 +3,13 @@ from telegram.ext import Application
 from Scripts.Application.User.GetBotKeyUseCase import GetBotKeyUseCase
 from Scripts.Presentation.UserHandlers.RefSystemHandlers import RefSystemHandlers
 from Scripts.Presentation.UserHandlers.ReviewHandler import ReviewHandlers
-from Scripts.Presentation.UserHandlers.SmallHandlers import SmallHandlers
+from Scripts.Presentation.UserHandlers.UserSmallHandlers import UserSmallHandlers
 
 
 class BotCommandsInstaller:
 
     def __init__(self,
-                 small_handlers: SmallHandlers,
+                 small_handlers: UserSmallHandlers,
                  review_handlers: ReviewHandlers,
                  ref_system_handlers: RefSystemHandlers,
                  get_bot_key_uc: GetBotKeyUseCase):

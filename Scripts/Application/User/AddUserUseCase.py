@@ -7,4 +7,4 @@ class AddUserUseCase:
         self.account_repo = account_repo
 
     def execute(self, user_id: int, referrer_username: str):
-        self.account_repo.add_referrer(user_id, referrer_username)
+        self.account_repo.add_user(user_id, referrer_username)

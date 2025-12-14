@@ -26,13 +26,13 @@ class ReviewHandlers:
                 MessageHandler(filters.Regex(r'^🏅'), self.add_review)
             ],
             states={
-                self.REVIEW_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.review_text_received)],
-                self.REVIEW_RATING: [MessageHandler(filters.TEXT & ~filters.COMMAND, self.review_rating_received)],
+                self.REVIEW_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓)'), self.review_text_received)],
+                self.REVIEW_RATING: [MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓)'), self.review_rating_received)],
             },
             fallbacks=[
                 CommandHandler("cancel", self.cancel),
                 MessageHandler(filters.COMMAND, self.cancel),
-                MessageHandler(filters.Regex(r'^[\U0001F300-\U0001F9FF]'), self.cancel)
+                MessageHandler(filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓)'), self.cancel)
             ],
         )
 

@@ -16,25 +16,35 @@ class ReviewRequests(ReviewRepository):
             return 0
 
     def get_by_index(self, index: int) -> tuple[str, str, int]:
-        self.db.cursor.execute('SELECT username, textReview, estimation '
-                               'FROM reviews '
-                               'ORDER BY estimation DESC '
-                               'LIMIT 1 OFFSET ?', (index,))
+        self.db.cursor.execute(
+            'SELECT username, textReview, estimation '
+            'FROM reviews '
+            'ORDER BY estimation DESC '
+            'LIMIT 1 OFFSET ?',
+            (index,)
+        )
 
         return self.db.cursor.fetchone()
 
     def upsert(self, user_id: int, username: str, text_review: str, estimation: int) -> bool:
 
-        self.db.cursor.execute('SELECT 1 FROM reviews WHERE idUser = ?', (user_id,))
+        self.db.cursor.execute(
+            'SELECT 1 FROM reviews WHERE user_id = ?',
+            (user_id,)
+        )
 
         exists = self.db.cursor.fetchone() is not None
 
         if exists:
-            self.db.cursor.execute('UPDATE reviews SET idUser = ?, username = ?, textReview = ?, estimation = ?',
-                                   (user_id, username, text_review, estimation))
+            self.db.cursor.execute(
+                'UPDATE reviews SET user_id = ?, username = ?, textReview = ?, estimation = ?',
+                (user_id, username, text_review, estimation)
+            )
         else:
-            self.db.cursor.execute('INSERT INTO reviews (idUser, username, textReview, estimation) VALUES (?, ?, ?, ?)',
-                                   (user_id, username, text_review, estimation))
+            self.db.cursor.execute(
+                'INSERT INTO reviews (user_id, username, textReview, estimation) VALUES (?, ?, ?, ?)',
+                (user_id, username, text_review, estimation)
+            )
 
         self.db.connect.commit()
         return not exists
