@@ -38,3 +38,10 @@ class AdminRequests(AdminRepository):
         self.db.connect.commit()
 
         return True
+
+    def add_haircut(self, user_id: str) -> bool:
+        self.db.cursor.execute(
+            "SELECT user_id FROM accounts WHERE user_id = ?",
+            (referrer_username,)
+        )
+        referrer = self.db.cursor.fetchone()

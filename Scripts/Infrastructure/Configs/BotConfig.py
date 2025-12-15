@@ -11,6 +11,15 @@ class BotConfig(TechConfigRepository):
         load_dotenv(dotenv_path=self.env_path)
 
         self.__bot_token = os.getenv("BOT_KEY")
+        self.__password = os.getenv("ADMIN_PASSWORD")
 
     def get_bot_token(self) -> str:
         return self.__bot_token
+
+    def get_admin_password(self) -> str:
+        return self.__password
+
+    def change_password(self, new_password: str) -> bool:
+        passffdggfdbdfbfd
+        fdb
+      grerege

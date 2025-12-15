@@ -6,4 +6,4 @@ class ChangeCoinsForFreeHaircutUseCase:
         self.haircut_config_repo = haircut_config_repo
 
     def execute(self, haircut_for_free_haircut: int):
-        self.haircut_config_repo.change_coins_for_free_haircut(haircut_for_free_haircut)
+pass

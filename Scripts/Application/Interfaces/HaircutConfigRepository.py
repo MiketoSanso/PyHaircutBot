@@ -16,19 +16,19 @@ class HaircutConfigRepository(ABC):
         pass
 
     @abstractmethod
-    def change_haircuts_to_free(self, count: int):
+    def change_haircuts_to_free(self, count: int)-> bool:
         pass
 
     @abstractmethod
-    def change_ref_haircuts_to_bonus(self, count: int):
+    def change_ref_haircuts_to_bonus(self, count: int)-> bool:
         pass
 
     @abstractmethod
-    def change_coins_for_ref(self, count: int):
+    def change_coins_for_ref(self, count: int)-> bool:
         pass
 
     @abstractmethod
-    def change_coins_for_free_haircut(self, count: int):
+    def change_coins_for_free_haircut(self, count: int)-> bool:
         pass
 
     @abstractmethod

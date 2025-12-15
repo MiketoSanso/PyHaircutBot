@@ -48,8 +48,9 @@ class AccountRequests(AccountRepository):
             'referralCoins, '
             'countHaircuts, '
             'countFreeHaircuts'
-            ') VALUES (?, ?, ?, ?, ?)',
-            (user_id, username, 0, 0, 0)
+            'referrer'
+            ') VALUES (?, ?, ?, ?, ?, ?)',
+            (user_id, username, 0, 0, 0, None)
         )
 
         self.db.connect.commit()

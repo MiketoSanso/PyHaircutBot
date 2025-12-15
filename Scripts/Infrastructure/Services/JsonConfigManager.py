@@ -41,33 +41,37 @@ class JsonConfigManager(HaircutConfigRepository):
         with open(config_file, 'w', encoding='utf-8') as f:
             json.dump(asdict(self._config), f, indent=4, ensure_ascii=False)
             
-    def change_haircuts_to_free(self, count: int):
+    def change_haircuts_to_free(self, count: int) -> bool:
         if count < 0 or count > 50:
-            raise ValueError("count must be between 0 and 50")
+            return False
 
         self._config.count_haircuts_to_free = count
         self.save_config()
+        return True
 
-    def change_ref_haircuts_to_bonus(self, count: int):
+    def change_ref_haircuts_to_bonus(self, count: int)-> bool:
         if count < 0 or count > 50:
-            raise ValueError("count must be between 0 and 50")
+            return False
 
         self._config.count_ref_haircuts_to_bonus = count
         self.save_config()
+        return True
 
-    def change_coins_for_ref(self, count: int):
+    def change_coins_for_ref(self, count: int)-> bool:
         if count < 0 or count > 1000:
-            raise ValueError("count must be between 0 and 1000")
+            return False
 
         self._config.coins_for_referral = count
         self.save_config()
+        return True
 
-    def change_coins_for_free_haircut(self, count: int):
+    def change_coins_for_free_haircut(self, count: int) -> bool:
         if count < 0 or count > 10000:
-            raise ValueError("count must be between 0 and 10000")
+            return False
 
         self._config.coins_for_free_haircut = count
         self.save_config()
+        return True
 
     def get_config_value(self, key: str) -> Any:
         return getattr(self._config, key)
