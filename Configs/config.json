@@ -1,3 +1,6 @@
 {
-    "count_haircuts_to_free": 3
+    "count_haircuts_to_free": 3,
+    "count_ref_haircuts_to_bonus": 3,
+    "coins_for_referral": 150,
+    "coins_for_free_haircut": 300
 }

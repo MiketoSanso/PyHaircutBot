@@ -20,6 +20,21 @@ class BotConfig(TechConfigRepository):
         return self.__password
 
     def change_password(self, new_password: str) -> bool:
-        passffdggfdbdfbfd
-        fdb
-      grerege
+        try:
+            with open(self.env_path, 'r') as f:
+                lines = f.readlines()
+
+            with open(self.env_path, 'w') as f:
+                for line in lines:
+                    if line.startswith('ADMIN_PASSWORD='):
+                        f.write(f'ADMIN_PASSWORD={new_password}\n')
+                    else:
+                        f.write(line)
+
+            self.__password = new_password
+            load_dotenv(dotenv_path=self.env_path, override=True)
+            return True
+
+        except Exception as e:
+            print(f"Ошибка смены пароля: {e}")
+            return False

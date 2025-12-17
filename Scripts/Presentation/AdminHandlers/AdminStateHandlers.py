@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import CommandHandler, ContextTypes
 from Scripts.Application.Admin.AddAdminByIdUseCase import AddAdminByIdUseCase
-from Scripts.Application.Admin.AddAdminUseByPasswordCase import AddAdminByPasswordUseCase
+from Scripts.Application.Admin.AddAdminByPasswordUseCase import AddAdminByPasswordUseCase
 from Scripts.Application.Admin.ChangeAdminPasswordUseCase import ChangeAdminPasswordUseCase
 from Scripts.Application.Admin.RemoveAdminUseCase import RemoveAdminUseCase
 
@@ -19,7 +19,10 @@ class AdminStateHandlers:
         self.remove_admin_uc = remove_admin_uc
 
     def setup_handlers(self, application):
-        application.add_handler(CommandHandler("referral", self.referral), group=1)
+        application.add_handler(CommandHandler("change_admin_password", self.change_admin_password), group=1)
+        application.add_handler(CommandHandler("add_admin_by_id", self.add_admin_by_id), group=1)
+        application.add_handler(CommandHandler("verify_admin_status", self.verify_admin_status), group=1)
+        application.add_handler(CommandHandler("delete_admin", self.delete_admin), group=1)
 
     async def change_admin_password(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         if not context.args or len(context.args) == 0:

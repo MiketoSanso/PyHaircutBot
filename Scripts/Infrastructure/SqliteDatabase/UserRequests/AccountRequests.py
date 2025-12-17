@@ -40,17 +40,33 @@ class AccountRequests(AccountRepository):
         except sqlite3.Error as e:
             return 0
 
+    def get_user_id_by_username(self, username: str) -> int:
+        try:
+            self.db.cursor.execute(
+                "SELECT user_id FROM accounts WHERE username = ?",
+                (username,)
+            )
+            result = self.db.cursor.fetchone()
+            return result[0] if result else 0
+        except sqlite3.Error as e:
+            return 0
+
     def add_user(self, user_id: int, username: str):
+        self.db.cursor.execute("SELECT 1 FROM accounts WHERE user_id = ?", (user_id,))
+        if self.db.cursor.fetchone():
+            return False
+        # Если нет - вставляем
         self.db.cursor.execute(
-            'INSERT OR IGNORE INTO accounts ('
+            'INSERT INTO accounts ('
             'user_id, '
             'username, '
             'referralCoins, '
             'countHaircuts, '
-            'countFreeHaircuts'
-            'referrer'
-            ') VALUES (?, ?, ?, ?, ?, ?)',
-            (user_id, username, 0, 0, 0, None)
+            'countFreeHaircuts, '
+            'referrer, '
+            'is_coins_added) '
+            'VALUES (?, ?, ?, ?, ?, ?, ?)',
+            (user_id, username, 0, 0, 0, None, False)
         )
 
         self.db.connect.commit()
@@ -70,14 +86,12 @@ class AccountRequests(AccountRepository):
 
         if referrer is None or referrer[0] == user_id:
             return False
-        print(referrer[0])
 
         self.db.cursor.execute(
             "SELECT referrer FROM accounts WHERE user_id = ?",
             (user_id,)
         )
         existing_referrer = self.db.cursor.fetchone()
-        print(existing_referrer[0])
         if existing_referrer and existing_referrer[0] is not None:
             return False
 

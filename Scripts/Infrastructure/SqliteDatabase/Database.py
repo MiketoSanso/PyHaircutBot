@@ -24,7 +24,8 @@ class HaircutDatabase:
                 referralCoins INT,
                 countHaircuts INT,
                 countFreeHaircuts INT,
-                referrer TEXT
+                referrer TEXT,
+                is_coins_added BOOL
             )
             ''')
         self.cursor.execute('''
@@ -39,6 +40,16 @@ class HaircutDatabase:
             )
             ''')
 
+        self.cursor.execute('SELECT nameService FROM price')
+        price = self.cursor.fetchone()
+        if price is None:
+            self.cursor.execute('INSERT INTO price (nameService, costService) VALUES (?, ?)',
+                ("Стрижка", 500)
+            )
+
+            self.cursor.execute('INSERT INTO price (nameService, costService) VALUES (?, ?)',
+                ("Бритьё бороды", 250)
+            )
         self.load_known_users()
 
     def load_known_users(self):

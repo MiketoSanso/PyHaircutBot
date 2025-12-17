@@ -16,6 +16,12 @@ class InfoRequests(InfoRepository):
             for nameService, costService in all_services:
                 services_list.append(f"{nameService}: {costService} руб.\n")
 
-            return "\n".join(services_list)
+            return "".join(services_list)
         except sqlite3.Error as e:
             return ""
+
+    def add_price_point(self):
+        pass
+
+    def del_price_point(self):
+        pass

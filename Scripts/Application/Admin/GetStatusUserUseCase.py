@@ -1,7 +1,7 @@
 from Scripts.Application.Interfaces.HaircutConfigRepository import HaircutConfigRepository
 
 
-class ChangeRefHaircutsToBonusUseCase:
+class GetStatusUserUseCase:
     def __init__(self, haircut_config_repo: HaircutConfigRepository):
         self.haircut_config_repo = haircut_config_repo
 

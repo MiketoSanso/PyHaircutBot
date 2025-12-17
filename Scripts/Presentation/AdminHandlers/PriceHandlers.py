@@ -3,7 +3,7 @@ from telegram.ext import ContextTypes, CommandHandler
 from Scripts.Application.Admin.SearchAdminUseCase import SearchAdminUseCase
 
 
-class HaircutHandlers:
+class PriceHandlers:
     def __init__(self):
         pass
 

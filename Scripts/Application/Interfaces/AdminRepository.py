@@ -4,7 +4,7 @@ from typing import Optional, Tuple
 
 class AdminRepository(ABC):
     @abstractmethod
-    def search_admin(self, user_id) -> tuple[int,]:
+    def search_admin(self, user_id: int) -> tuple[int,]:
         pass
 
     @abstractmethod
@@ -12,5 +12,5 @@ class AdminRepository(ABC):
         pass
 
     @abstractmethod
-    def remove_admin(self, user_id)-> bool:
+    def remove_admin(self, user_id: int)-> bool:
         pass

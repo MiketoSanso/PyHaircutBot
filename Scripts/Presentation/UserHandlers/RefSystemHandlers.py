@@ -19,12 +19,14 @@ class RefSystemHandlers:
                 MessageHandler(filters.Regex(r'^🤝'), self.specify_referrer)
             ],
             states={
-                self.REFERRER_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND & ~filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓)'), self.end_specify_referrer)],
+                self.REFERRER_TEXT: [MessageHandler(filters.TEXT & ~filters.COMMAND &
+                                                    ~filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓|🖼️|💼)'),
+                                                    self.end_specify_referrer)],
             },
             fallbacks=[
                 CommandHandler("cancel", self.cancel),
                 MessageHandler(filters.COMMAND, self.cancel),
-                MessageHandler(filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓)'), self.cancel)
+                MessageHandler(filters.Regex(r'^(🤝|👥|🏅|⭐|➡️|⬅️|👾|💰|👤|❓|🖼️|💼)'), self.cancel)
             ],
         )
 
@@ -36,14 +38,15 @@ class RefSystemHandlers:
 
     async def referral(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         data = self.get_tech_data_uc.execute()
-        ref_haircuts_to_bonus = data["count_referral_haircuts_to_bonus"]
-        coins_for_referral = data["coins_for_one_referral"]
+        ref_haircuts_to_bonus = data["count_ref_haircuts_to_bonus"]
+        coins_for_referral = data["coins_for_referral"]
         coins_free_haircut = data["coins_for_free_haircut"]
 
         await update.message.reply_text(f"РЕФЕРАЛЬНАЯ СИСТЕМА\n\n"
                                         f"Пригласи друзей и получи реферальные баллы!\n"
-                                        f"За каждого приведённого друга, прошедшего {ref_haircuts_to_bonus}"
-                                        f"платных стрижкек ты получаешь {coins_for_referral} баллов.\n"
+                                        f"За каждого приведённого друга, прошедшего {ref_haircuts_to_bonus} "
+                                        f"платных стрижек ты получаешь:\n"
+                                        f"{coins_for_referral} баллов.\n\n"
                                         f"{coins_free_haircut} баллов => 1 бесплатная стрижка!")
 
     async def specify_referrer(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

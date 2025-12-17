@@ -16,6 +16,10 @@ class AccountRepository(ABC):
         pass
 
     @abstractmethod
+    def get_user_id_by_username(self, username: str) -> int:
+        pass
+
+    @abstractmethod
     def add_user(self, user_id: int, username: str):
         pass
 

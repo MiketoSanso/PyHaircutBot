@@ -19,7 +19,11 @@ class ChangeHaircutConfigHandlers:
         self.change_ref_haircuts_to_bonus_uc = change_ref_haircuts_to_bonus_uc
 
     def setup_handlers(self, application):
-        application.add_handler(CommandHandler("referral", self.referral), group=1)
+        application.add_handler(CommandHandler("change_coins_for_free_haircut", self.change_coins_for_free_haircut), group=1)
+        application.add_handler(CommandHandler("change_coins_for_ref", self.change_coins_for_ref), group=1)
+        application.add_handler(CommandHandler("change_haircuts_to_free", self.change_haircuts_to_free), group=1)
+        application.add_handler(CommandHandler("change_ref_haircuts_to_bonus", self.change_ref_haircuts_to_bonus), group=1)
+
 
     async def change_coins_for_free_haircut(self,
                                             update: Update,

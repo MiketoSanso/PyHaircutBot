@@ -20,3 +20,13 @@ class ProjectPathFinder:
     def env_path(self) -> Path:
         direction = self._find_path_project()
         return direction / "tech.env"
+
+    @cached_property
+    def qr_path(self) -> Path:
+        direction = self._find_path_project()
+        return direction / "Images" / "Qr"
+
+    @cached_property
+    def references_path(self) -> Path:
+        direction = self._find_path_project()
+        return direction / "Images" / "References"

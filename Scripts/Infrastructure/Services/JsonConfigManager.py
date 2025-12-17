@@ -28,9 +28,9 @@ class JsonConfigManager(HaircutConfigRepository):
 
     def create_default_config(self):
         self._config = HaircutConfig(
-            count_haircuts_to_free = 3,
-            count_ref_haircuts_to_bonus= 3,
-            coins_for_referral= 100,
+            count_haircuts_to_free = 5,
+            count_ref_haircuts_to_bonus = 5,
+            coins_for_referral = 100,
             coins_for_free_haircut = 300
         )
 

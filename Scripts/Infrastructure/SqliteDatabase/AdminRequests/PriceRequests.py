@@ -1,7 +1,8 @@
+from Scripts.Application.Interfaces.PriceRepository import PriceRepository
 from Scripts.Infrastructure.SqliteDatabase.Database import HaircutDatabase
 
 
-class PriceRequests:
+class PriceRequests(PriceRepository):
     def __init__(self, db: HaircutDatabase):
         self.db = db
 

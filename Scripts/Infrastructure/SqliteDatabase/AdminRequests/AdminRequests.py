@@ -6,7 +6,7 @@ class AdminRequests(AdminRepository):
     def __init__(self, db: HaircutDatabase):
         self.db = db
 
-    def search_admin(self, user_id) -> tuple[int,]:
+    def search_admin(self, user_id: int) -> tuple[int,]:
         self.db.cursor.execute(
             "SELECT user_id FROM admins WHERE user_id = ?",
             (user_id,)
@@ -26,7 +26,7 @@ class AdminRequests(AdminRepository):
 
         return True
 
-    def remove_admin(self, user_id)-> bool:
+    def remove_admin(self, user_id: int)-> bool:
         user = self.search_admin(user_id)
         if user is None:
             return False
@@ -38,10 +38,3 @@ class AdminRequests(AdminRepository):
         self.db.connect.commit()
 
         return True
-
-    def add_haircut(self, user_id: str) -> bool:
-        self.db.cursor.execute(
-            "SELECT user_id FROM accounts WHERE user_id = ?",
-            (referrer_username,)
-        )
-        referrer = self.db.cursor.fetchone()
