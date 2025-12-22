@@ -6,6 +6,7 @@ from Scripts.Application.Admin.ChangeHaircutsToFreeUseCase import ChangeHaircuts
 from Scripts.Application.Admin.ChangeRefHaircutsToBonusUseCase import ChangeRefHaircutsToBonusUseCase
 
 
+# noinspection LongLine
 class ChangeHaircutConfigHandlers:
 
     def __init__(self,
@@ -23,7 +24,6 @@ class ChangeHaircutConfigHandlers:
         application.add_handler(CommandHandler("change_coins_for_ref", self.change_coins_for_ref), group=1)
         application.add_handler(CommandHandler("change_haircuts_to_free", self.change_haircuts_to_free), group=1)
         application.add_handler(CommandHandler("change_ref_haircuts_to_bonus", self.change_ref_haircuts_to_bonus), group=1)
-
 
     async def change_coins_for_free_haircut(self,
                                             update: Update,

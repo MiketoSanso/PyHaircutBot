@@ -23,6 +23,7 @@ class AddHaircutByUsernameUseCase:
     def execute(self, user_id: int, username: str)-> bool:
         if self.search_admin_uc.execute(user_id):
             id_by_username = self.account_repo.get_user_id_by_username(username)
+            print(id_by_username)
 
             if id_by_username == 0:
                 return False

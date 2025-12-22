@@ -10,6 +10,9 @@ class GetUserHaircutsToFreeUseCase:
         self.haircut_config_repo = haircut_config_repo
 
     def execute(self, user_id: int) -> int:
+        if self.account_repo.get_count_haircuts(user_id) == 0:
+            return self.haircut_config_repo.get_config_value("count_haircuts_to_free")
+
         return ((self.haircut_config_repo.get_config_value("count_haircuts_to_free")
                  - self.account_repo.get_count_haircuts(user_id))
                 % self.haircut_config_repo.get_config_value("count_haircuts_to_free"))

@@ -8,13 +8,13 @@ class PriceRepository(ABC):
         pass
 
     @abstractmethod
-    def get_all_services(self):
+    def get_count_services(self) -> int:
         pass
 
     @abstractmethod
-    def change_service_by_index(self):
+    def change_service_by_index(self) -> bool:
         pass
 
     @abstractmethod
-    def delete_service_by_index(self):
+    def delete_service_by_index(self, index: int) -> bool:
         pass

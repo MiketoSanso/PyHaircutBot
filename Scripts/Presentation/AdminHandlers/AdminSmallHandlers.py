@@ -45,6 +45,7 @@ class AdminSmallHandlers:
             return
 
         username = str(context.args[0])
+        print(username)
 
         if username.startswith('@'):
             username = username[1:]
